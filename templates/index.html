@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Predictive Maintenance System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0b1120;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* NAVBAR */
+
+        .navbar {
+            height: 70px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            background: #0f172a;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #38bdf8;
+        }
+
+        .nav-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            background: #22c55e;
+            border-radius: 50%;
+        }
+
+        /* MAIN */
+
+        .container {
+            width: 86%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 55px 0;
+        }
+
+        .hero {
+            margin-bottom: 40px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 20px;
+            background: #172554;
+            color: #60a5fa;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        .hero h1 {
+            font-size: 46px;
+            line-height: 1.15;
+            margin-bottom: 15px;
+        }
+
+        .hero h1 span {
+            color: #38bdf8;
+        }
+
+        .hero p {
+            max-width: 700px;
+            color: #94a3b8;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        /* GRID */
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: #111c31;
+            border: 1px solid #1e293b;
+            border-radius: 18px;
+            padding: 30px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        /* FORM */
+
+        label {
+            display: block;
+            color: #cbd5e1;
+            margin-bottom: 9px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 9px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 18px;
+        }
+
+        input:focus {
+            border-color: #38bdf8;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 9px;
+            background: #0284c7;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #0369a1;
+            transform: translateY(-1px);
+        }
+
+        .hint {
+            margin-top: 15px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* RESULT */
+
+        .result-card {
+            min-height: 100%;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .result-header span {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .rul-container {
+            text-align: center;
+            padding: 25px 0;
+        }
+
+        .rul-label {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .rul {
+            font-size: 58px;
+            font-weight: bold;
+            margin: 8px 0;
+            color: #38bdf8;
+        }
+
+        .cycles {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .maintenance {
+            text-align: center;
+            padding: 14px;
+            border-radius: 10px;
+            background: #451a03;
+            color: #fbbf24;
+            border: 1px solid #78350f;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        /* INFO BOXES */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .info-box {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            padding: 18px 10px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .info-box small {
+            display: block;
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .info-box strong {
+            font-size: 19px;
+        }
+
+        /* EMPTY RESULT */
+
+        .empty-result {
+            height: 100%;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .empty-result h3 {
+            margin-bottom: 10px;
+            color: #cbd5e1;
+        }
+
+        .empty-result p {
+            color: #64748b;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* ERROR */
+
+        .error {
+            margin-top: 18px;
+            padding: 13px;
+            border-radius: 9px;
+            background: #450a0a;
+            color: #fca5a5;
+            border: 1px solid #7f1d1d;
+            font-size: 14px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            text-align: center;
+            padding: 35px 20px;
+            color: #475569;
+            font-size: 13px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 850px) {
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .navbar {
+                padding: 0 5%;
+            }
+
+            .container {
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .hero h1 {
+                font-size: 30px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-status {
+                display: none;
+            }
+
+            .card {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Predictive<span>Maintenance</span>
+        </div>
+
+        <div class="nav-status">
+            <div class="status-dot"></div>
+            Model Online
+        </div>
+
+    </nav>
+
+
+    <!-- MAIN -->
+
+    <main class="container">
+
+        <section class="hero">
+
+            <div class="badge">
+                CNN-LSTM • MACHINE LEARNING
+            </div>
+
+            <h1>
+                Predict Aircraft
+                <span>Remaining Useful Life</span>
+            </h1>
+
+            <p>
+                An intelligent predictive maintenance system that analyzes
+                aircraft sensor data and estimates the Remaining Useful Life
+                (RUL) to support timely maintenance decisions.
+            </p>
+
+        </section>
+
+
+        <!-- DASHBOARD -->
+
+        <section class="dashboard">
+
+
+            <!-- INPUT CARD -->
+
+            <div class="card">
+
+                <h2 class="card-title">
+                    Aircraft Analysis
+                </h2>
+
+                <p class="card-description">
+                    Select an aircraft or unit from the N-CMAPSS dataset.
+                </p>
+
+
+                <form method="POST">
+
+                    <label for="aircraft_id">
+                        Aircraft / Unit ID
+                    </label>
+
+                    <input
+                        type="number"
+                        id="aircraft_id"
+                        name="aircraft_id"
+                        min="1"
+                        max="89"
+                        placeholder="Enter ID (1 - 89)"
+                        required
+                    >
+
+                    <button type="submit">
+                        Predict Remaining Useful Life
+                    </button>
+
+                </form>
+
+
+                <p class="hint">
+                    Example: Enter <strong>66</strong> to analyze Aircraft 66.
+                </p>
+
+
+                {% if error %}
+
+                    <div class="error">
+                        {{ error }}
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- RESULT CARD -->
+
+            <div class="card result-card">
+
+                {% if prediction is not none %}
+
+                    <div class="result-header">
+
+                        <h2 class="card-title">
+                            Prediction Result
+                        </h2>
+
+                        <span>
+                            LIVE MODEL PREDICTION
+                        </span>
+
+                    </div>
+
+
+                    <div class="rul-container">
+
+                        <div class="rul-label">
+                            Estimated Remaining Useful Life
+                        </div>
+
+                        <div class="rul">
+                            {{ "%.2f"|format(prediction) }}
+                        </div>
+
+                        <div class="cycles">
+                            cycles remaining
+                        </div>
+
+                    </div>
+
+
+                    <div class="maintenance">
+                        {{ status }}
+                    </div>
+
+
+                    <div class="info-grid">
+
+                        <div class="info-box">
+
+                            <small>
+                                AIRCRAFT / UNIT
+                            </small>
+
+                            <strong>
+                                {{ aircraft_id }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-box">
+
+                            <small>
+                                OBSERVATIONS
+                            </small>
+
+                            <strong>
+                                {{ observations }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-box">
+
+                            <small>
+                                SENSOR FEATURES
+                            </small>
+
+                            <strong>
+                                28
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-result">
+
+                        <div>
+
+                            <h3>
+                                No Prediction Yet
+                            </h3>
+
+                            <p>
+                                Enter an Aircraft / Unit ID on the left
+                                to generate a Remaining Useful Life prediction.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        Predictive Maintenance System
+        <br>
+        CNN-LSTM based Aircraft RUL Prediction
+
+    </footer>
+
+</body>
+</html>
