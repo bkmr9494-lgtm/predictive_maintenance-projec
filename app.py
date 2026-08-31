@@ -34,7 +34,9 @@ print("System loaded successfully!")
 print("Dataset shape:", data.shape)
 print("Sensor features:", len(sensor_columns))
 
-
+@app.route("/health")
+def health():
+    return "OK", 200
 @app.route("/", methods=["GET", "POST"])
 def home():
 
@@ -102,4 +104,8 @@ def home():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=False
+    )
