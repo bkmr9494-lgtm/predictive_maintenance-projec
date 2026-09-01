@@ -10,33 +10,41 @@ app = Flask(__name__)
 # Project root
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Paths
+# File paths
 MODEL_PATH = os.path.join(BASE_DIR, "models", "cnn_lstm_rul.keras")
 SCALER_PATH = os.path.join(BASE_DIR, "models", "scaler.pkl")
-DATA_PATH = os.path.join(BASE_DIR, "data", "processed", "processed_data.csv")
+DATA_PATH = os.path.join(
+    BASE_DIR,
+    "data",
+    "processed",
+    "processed_data.csv"
+)
 
-# Load model and scaler
 print("Loading predictive maintenance system...")
 
+# Load model
 model = tf.keras.models.load_model(MODEL_PATH)
+print("Model loaded successfully!")
+
+# Load scaler
 scaler = joblib.load(SCALER_PATH)
+print("Scaler loaded successfully!")
 
 # Load dataset
 data = pd.read_csv(DATA_PATH)
 
-# Sensor columns
+print("Dataset shape:", data.shape)
+
+# Identify sensor columns
 sensor_columns = [
     col for col in data.columns
     if col.startswith("sensor_") or col.startswith("virtual_sensor_")
 ]
 
+print("Number of sensor features:", len(sensor_columns))
 print("System loaded successfully!")
-print("Dataset shape:", data.shape)
-print("Sensor features:", len(sensor_columns))
 
-@app.route("/health")
-def health():
-    return "OK", 200
+
 @app.route("/", methods=["GET", "POST"])
 def home():
 
@@ -55,26 +63,29 @@ def home():
             aircraft_data = data[data["A_2"] == aircraft_id]
 
             if len(aircraft_data) < 30:
-                error = "This aircraft does not have enough observations."
+                error = (
+                    "This aircraft does not have enough observations "
+                    "for prediction."
+                )
 
             else:
                 observations = len(aircraft_data)
 
-                # Get latest 30 observations
+                # Take latest 30 observations
                 latest_data = aircraft_data[
                     sensor_columns
                 ].tail(30)
 
-                # Convert to numpy
-                sensor_data = latest_data.values
+                # Convert to NumPy
+                sensor_data = latest_data.to_numpy()
 
-                # Normalize
+                # Normalize sensor values
                 sensor_scaled = scaler.transform(sensor_data)
 
-                # Reshape for CNN-LSTM
+                # CNN-LSTM input shape
                 model_input = sensor_scaled.reshape(1, 30, 28)
 
-                # Predict
+                # Make prediction
                 result = model.predict(
                     model_input,
                     verbose=0
@@ -82,16 +93,31 @@ def home():
 
                 prediction = float(result[0][0])
 
-                # Maintenance status
+                # Maintenance classification
                 if prediction <= 10:
-                    status = "HIGH PRIORITY - Maintenance Recommended"
+                    status = (
+                        "HIGH PRIORITY - "
+                        "Maintenance Recommended"
+                    )
+
                 elif prediction <= 30:
-                    status = "MEDIUM PRIORITY - Monitor Closely"
+                    status = (
+                        "MEDIUM PRIORITY - "
+                        "Monitor Closely"
+                    )
+
                 else:
-                    status = "LOW PRIORITY - Normal Operation"
+                    status = (
+                        "LOW PRIORITY - "
+                        "Normal Operation"
+                    )
+
+        except ValueError:
+            error = "Please enter a valid aircraft ID."
 
         except Exception as e:
-            error = str(e)
+            print("Prediction error:", e)
+            error = "Unable to generate prediction. Please try again."
 
     return render_template(
         "index.html",
@@ -104,8 +130,13 @@ def home():
 
 
 if __name__ == "__main__":
+
+    # Render provides the PORT environment variable.
+    # Locally it defaults to 5000.
+    port = int(os.environ.get("PORT", 5000))
+
     app.run(
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", 5000)),
+        port=port,
         debug=False
     )
